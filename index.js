@@ -4,6 +4,10 @@ const H = require ( 'highland' );
 const objectWalker = R.curry ( ( conf, O ) => {
     const thisWalker = objectWalker ( conf );
 
+    if ( R.contains ( R.type ( O ), R.keys ( conf ) ) && R.type ( conf[R.type ( O )] ) === 'Function' ) {
+        return conf[R.type ( O )]( O );
+    }
+
     if ( R.type ( O ) === 'Array' ) {
         return H ( R.map ( thisWalker, O ) )
             .parallel ( 100 )
@@ -16,10 +20,6 @@ const objectWalker = R.curry ( ( conf, O ) => {
             .collect ()
             .map ( R.zip ( R.keys ( O ) ) )
             .map ( R.fromPairs );
-    }
-
-    if ( R.contains ( R.type ( O ), R.keys ( conf ) ) && R.type ( conf[R.type ( O )] ) === 'Function' ) {
-        return conf[R.type ( O )]( O );
     }
 
     return H ( [ O ] );
